@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+.idea_modules/
+
+# JVM crash logs
+hs_err_pid*
+
+# Gradle/Plugin development run directory
+run/

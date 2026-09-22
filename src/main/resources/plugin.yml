@@ -1,0 +1,12 @@
+name: stral
+description: $description
+version: '${version}'
+
+api-version: 1.13
+main: app.stral.core.StralPluginPlatform
+load: POSTWORLD
+
+folia-supported: true
+
+authors: [ svaue ]
+website: stral.app
