@@ -3,7 +3,7 @@ description: $description
 version: '${version}'
 
 api-version: 1.13
-main: app.stral.core.StralPluginPlatform
+main: app.stral.bukkit.StralBukkitPlugin
 load: POSTWORLD
 
 folia-supported: true
