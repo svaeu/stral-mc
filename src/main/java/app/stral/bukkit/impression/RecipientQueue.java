@@ -1,5 +1,7 @@
 package app.stral.bukkit.impression;
 
+import app.stral.bukkit.nms.Capability;
+import app.stral.bukkit.scheduler.CancellableTask;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandException;
@@ -22,7 +24,7 @@ public class RecipientQueue {
     private final Queue<GrantRegistry.Grant> recipients = new ConcurrentLinkedQueue<>();
     private final Plugin plugin;
 
-    private BukkitTask task;
+    private CancellableTask task;
 
     public RecipientQueue(Plugin plugin) {
         this.plugin = plugin;
@@ -33,8 +35,8 @@ public class RecipientQueue {
     }
 
     public void start() {
-        task = Bukkit.getScheduler().runTaskTimer(
-                plugin, this::drain, DRAIN_TICKS, DRAIN_TICKS);
+        task = Capability.SCHEDULER
+                .runRepeating(plugin, this::drain, DRAIN_TICKS, DRAIN_TICKS);
     }
 
     public void stop() {

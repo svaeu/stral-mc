@@ -1,9 +1,9 @@
 package app.stral.bukkit.impression;
 
 import app.stral.bukkit.httpclient.FetchingClient;
-import org.bukkit.Bukkit;
+import app.stral.bukkit.nms.Capability;
+import app.stral.bukkit.scheduler.CancellableTask;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -19,7 +19,7 @@ public class PollingService {
     private final FetchingClient restClient;
     private final RecipientQueue recipient;
 
-    private BukkitTask pollingTask;
+    private CancellableTask pollingTask;
 
     public PollingService(Plugin plugin, GrantRegistry registry,
                           FetchingClient restClient, RecipientQueue recipient) {
@@ -30,8 +30,8 @@ public class PollingService {
     }
 
     public void start() {
-        pollingTask = Bukkit.getScheduler()
-                .runTaskTimerAsynchronously(plugin,
+        pollingTask = Capability.SCHEDULER
+                .runRepeatingAsynchronously(plugin,
                         this::pollOnce, POLLING_TICKS, POLLING_TICKS);
     }
 
