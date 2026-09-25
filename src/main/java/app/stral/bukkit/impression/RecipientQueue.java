@@ -8,7 +8,6 @@ import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
 import java.util.Queue;
