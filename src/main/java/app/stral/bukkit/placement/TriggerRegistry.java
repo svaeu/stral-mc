@@ -68,8 +68,8 @@ public class TriggerRegistry {
         return master.get(type);
     }
 
-    public void setMaster(TriggerType type) {
-        master.put(type, true);
+    public void setMasterEnabled(TriggerType type, boolean enabled) {
+        master.put(type, enabled);
     }
 
     public void clearAll() {
