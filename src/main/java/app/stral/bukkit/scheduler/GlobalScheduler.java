@@ -26,4 +26,13 @@ public class GlobalScheduler implements TaskScheduler {
                         delay * 50L, period * 50L, TimeUnit.MILLISECONDS);
         return delegate::cancel;
     }
+
+    @Override
+    public CancellableTask runOnceAsynchronously(Plugin plugin, Runnable task) {
+        final ScheduledTask delegate;
+
+        delegate = Bukkit.getServer().getAsyncScheduler()
+                .runNow(plugin, t -> task.run());
+        return delegate::cancel;
+    }
 }

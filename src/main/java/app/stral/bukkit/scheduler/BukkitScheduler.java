@@ -21,4 +21,12 @@ public class BukkitScheduler implements TaskScheduler {
         scheduled = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delay, period);
         return scheduled::cancel;
     }
+
+    @Override
+    public CancellableTask runOnceAsynchronously(Plugin plugin, Runnable task) {
+        final BukkitTask scheduled;
+
+        scheduled = Bukkit.getScheduler().runTaskAsynchronously(plugin, task);
+        return scheduled::cancel;
+    }
 }
