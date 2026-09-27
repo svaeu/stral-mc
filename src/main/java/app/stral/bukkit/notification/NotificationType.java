@@ -7,7 +7,7 @@ public enum NotificationType {
     ),
     NOT_REGISTERED(
             "stral.notify.register",
-            "Register your server to start monetizing: %s"
+            "No API key set. Get one at: %s. Run /stral link <key>, or paste it under 'api-key' in config.yml"
     ),
     LIMITED(
             "stral.notify.network",
