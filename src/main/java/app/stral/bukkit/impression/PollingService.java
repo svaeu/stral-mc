@@ -1,11 +1,11 @@
 package app.stral.bukkit.impression;
 
 import app.stral.bukkit.httpclient.FetchingClient;
+import app.stral.bukkit.httpclient.NetworkService;
 import app.stral.bukkit.nms.Capability;
 import app.stral.bukkit.scheduler.CancellableTask;
 import org.bukkit.plugin.Plugin;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.logging.Level;
 
@@ -18,24 +18,31 @@ public class PollingService {
     private final GrantRegistry registry;
     private final FetchingClient restClient;
     private final RecipientQueue recipient;
+    private final NetworkService network;
 
     private CancellableTask pollingTask;
+    private boolean pollRunning;
 
-    public PollingService(Plugin plugin, GrantRegistry registry,
-                          FetchingClient restClient, RecipientQueue recipient) {
+    public PollingService(Plugin plugin, FetchingClient restClient,
+                          RecipientQueue recipient, NetworkService network) {
         this.plugin = plugin;
-        this.registry = registry;
         this.restClient = restClient;
         this.recipient = recipient;
+        this.network = network;
+
+        this.registry = new GrantRegistry(plugin.getLogger());
     }
 
     public void start() {
-        pollingTask = Capability.SCHEDULER
-                .runRepeatingAsynchronously(plugin,
-                        this::pollOnce, POLLING_TICKS, POLLING_TICKS);
+        if(pollRunning) return;
+
+        pollRunning = true;
+        pollOnce();
     }
 
     public void stop() {
+        pollRunning = false;
+
         if(pollingTask != null) {
             pollingTask.cancel();
 
@@ -44,18 +51,32 @@ public class PollingService {
     }
 
     private void pollOnce() {
-        try {
-            restClient.fetchTerminal().forEach((t, s) -> {
-                final GrantRegistry.Grant grant;
+        if (!pollRunning) return;
 
-                grant = registry.remove(t);
-                if(grant != null && "COMPLETE".equalsIgnoreCase(s))
-                    recipient.enqueue(grant);
-            });
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.WARNING,
-                    "Polling status endpoint failed", e);
-        }
-        registry.sweepStale(TOKEN_TTL_MILLIS);
+        network.execute(restClient::fetchStatus)
+                .whenComplete((status, error) -> {
+
+                    if (error != null) {
+                        plugin.getLogger().log(Level.WARNING,
+                                "Polling status endpoint failed", error);
+                    } else {
+                        status.forEach((t, s) -> {
+                            GrantRegistry.Grant grant = registry.remove(t);
+
+                            if (grant != null
+                                    && "COMPLETE".equalsIgnoreCase(s)) {
+                                recipient.enqueue(grant);
+                            }
+                        });
+                        registry.sweepStale(TOKEN_TTL_MILLIS);
+                    }
+                    if (!pollRunning) return;
+
+                    pollingTask = Capability.SCHEDULER.runOnce(
+                            plugin,
+                            this::pollOnce,
+                            POLLING_TICKS
+                    );
+                });
     }
 }
