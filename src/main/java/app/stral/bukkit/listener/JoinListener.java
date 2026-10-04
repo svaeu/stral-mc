@@ -1,21 +1,21 @@
 package app.stral.bukkit.listener;
 
+import app.stral.bukkit.notification.NotificationService;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import static app.stral.bukkit.StralBukkitPlugin.BASE_API_URL;
-import static app.stral.bukkit.StralBukkitPlugin.missingSecret;
-
 public class JoinListener implements Listener {
 
-    @EventHandler
+    private final NotificationService notifications;
+
+    public JoinListener(NotificationService notifications) {
+        this.notifications = notifications;
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if(missingSecret && event.getPlayer().isOp()) {
-            event.getPlayer().sendMessage(
-                    "⚠ No API key set!, Run /stral link <api-key> to configure." +
-                            " Get a key at: " + BASE_API_URL + ""
-            );
-        }
+        notifications.notify(event.getPlayer());
     }
 }

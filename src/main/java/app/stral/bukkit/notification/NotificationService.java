@@ -21,23 +21,23 @@ public final class NotificationService {
         final String message;
 
         message = type.format(args);
-        if (active.put(type, message) == null) logger.warning(message);
+        if(type.target(NotificationTarget.CONSOLE))
+            logger.log(type.getLevel(), message);
+
+        if(type.target(NotificationTarget.PLAYER))
+            synchronized (active) { active.put(type, message); }
     }
 
     public void notify(Player player) {
         synchronized (active) {
-            for (Map.Entry<NotificationType, String> entry : active.entrySet())
-                notify(player, entry.getKey(), entry.getValue());
-        }
-    }
-
-    private void notify(
-            Player player,
-            NotificationType type,
-            String message
-    ) {
-        if (player.isOp() || player.hasPermission(type.getPermission())) {
-            player.sendMessage(message);
+            for (Map.Entry<NotificationType, String> entry : active.entrySet()) {
+                if (player.isOp()
+                        || (entry.getKey().getPermission() != null
+                        && player.hasPermission(entry.getKey().getPermission())))
+                    player.sendMessage(
+                            entry.getKey().getColor() + "[!] " + entry.getValue()
+                    );
+            }
         }
     }
 
