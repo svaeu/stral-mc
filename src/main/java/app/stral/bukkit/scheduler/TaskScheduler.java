@@ -4,7 +4,7 @@ import org.bukkit.plugin.Plugin;
 
 public interface TaskScheduler {
     CancellableTask runRepeating(Plugin plugin, Runnable task, long delay, long period);
-    CancellableTask runRepeatingAsynchronously(Plugin plugin, Runnable task, long delay, long period);
 
-    CancellableTask runOnceAsynchronously(Plugin plugin, Runnable task);
+    CancellableTask runOnce(Plugin plugin, Runnable task, long delay);
+    void runOnceAsynchronously(Plugin plugin, Runnable task);
 }

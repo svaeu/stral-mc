@@ -4,8 +4,6 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import java.util.concurrent.TimeUnit;
-
 public class GlobalScheduler implements TaskScheduler {
 
     @Override
@@ -18,21 +16,16 @@ public class GlobalScheduler implements TaskScheduler {
     }
 
     @Override
-    public CancellableTask runRepeatingAsynchronously(Plugin plugin, Runnable task, long delay, long period) {
+    public CancellableTask runOnce(Plugin plugin, Runnable task, long delay) {
         final ScheduledTask delegate;
 
-        delegate = Bukkit.getServer().getAsyncScheduler()
-                .runAtFixedRate(plugin, t -> task.run(),
-                        delay * 50L, period * 50L, TimeUnit.MILLISECONDS);
+        delegate = Bukkit.getServer().getGlobalRegionScheduler()
+                .runDelayed(plugin, t -> task.run(), delay);
         return delegate::cancel;
     }
 
     @Override
-    public CancellableTask runOnceAsynchronously(Plugin plugin, Runnable task) {
-        final ScheduledTask delegate;
-
-        delegate = Bukkit.getServer().getAsyncScheduler()
-                .runNow(plugin, t -> task.run());
-        return delegate::cancel;
+    public void runOnceAsynchronously(Plugin plugin, Runnable task) {
+        Bukkit.getServer().getAsyncScheduler().runNow(plugin, t -> task.run());
     }
 }
