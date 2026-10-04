@@ -23,6 +23,20 @@ public class FetchingClient {
         this.authHeader = new String[]{"X-API-Key", apiKey};
     }
 
+    public Map<String, String> fetchIdentity() throws IOException {
+        final Map<String, String> result;
+
+        try (Reader reader = transport.utf8Reader(
+                transport.request(
+                        "GET", "/v1/whoami", authHeader, null)))
+        {
+            result = GSON.fromJson(reader, sign);
+            if(result == null)
+                throw new IOException("Empty response from /v1/whoami");
+        }
+        return result;
+    }
+
     public String fetchLink() throws Exception {
         String embed = null;
 
@@ -42,7 +56,7 @@ public class FetchingClient {
         }
     }
 
-    public Map<String, String> fetchTerminal() throws IOException {
+    public Map<String, String> fetchStatus() throws IOException {
         final Map<String, String> status;
 
         try(Reader reader = transport.utf8Reader(
@@ -51,6 +65,4 @@ public class FetchingClient {
             return status == null ? Collections.emptyMap() : status;
         }
     }
-
-
 }
